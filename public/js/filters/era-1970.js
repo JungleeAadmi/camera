@@ -1,23 +1,14 @@
-// 1970s: Vintage Instant / Faded Film
-// Style: Low Contrast, Washed-out Blacks, Greenish Tint (Expired Film)
+// 1970: Polaroid
+// Greenish shadows, washed blacks
 
-export function apply(ctx, width, height, time) {
-    // 1. Base Filter: Faded Look
-    // Lower contrast + slight sepia for the paper feel
-    ctx.filter = 'brightness(110%) contrast(90%) sepia(20%)';
+export function apply(ctx, width, height) {
+    // 1. Low Contrast Faded
+    ctx.filter = 'contrast(90%) brightness(110%) sepia(20%)';
     ctx.drawImage(ctx.canvas, 0, 0);
     ctx.filter = 'none';
 
-    // 2. "Expired Film" Tint (Cyan/Green Shadows)
-    // We use 'screen' or 'exclusion' blend modes to tint the darks
-    ctx.globalCompositeOperation = 'screen';
-    ctx.fillStyle = 'rgba(0, 50, 100, 0.15)'; // Deep subtle blue/green
+    // 2. Green Shadows (Exclusion/Lighten trick)
+    ctx.globalCompositeOperation = 'lighten';
+    ctx.fillStyle = 'rgba(20, 40, 50, 0.15)';
     ctx.fillRect(0, 0, width, height);
-    
-    // 3. Warm Highlights
-    ctx.globalCompositeOperation = 'soft-light';
-    ctx.fillStyle = 'rgba(255, 200, 100, 0.2)'; // Faint orange
-    ctx.fillRect(0, 0, width, height);
-
-    ctx.globalCompositeOperation = 'source-over';
 }

@@ -1,55 +1,57 @@
 import { setEra } from './filters/filter-manager.js';
 import { toggleRecording } from './recorder.js';
+import { toggleCamera } from './camera.js';
 
-const DECADES = [
-    '1930', '1940', '1950', '1960', '1970', 
-    '1980', '1990', '2000', '2010', '2020'
-];
+const DECADES = ['1930', '1940', '1950', '1960', '1970', '1980', '1990', '2000', '2010', '2020'];
 
 export function initUI() {
     const dialContainer = document.getElementById('dial-container');
     const shutterBtn = document.getElementById('shutter-btn');
+    const flipBtn = document.getElementById('flip-btn');
+    const videoElement = document.getElementById('raw-video');
     
-    // Generate Dial Buttons
+    // Generate Dial
     DECADES.forEach(decade => {
-        const btn = document.createElement('button');
-        btn.innerText = decade;
-        btn.className = `
-            dial-btn px-4 py-2 rounded-full border border-zinc-700 
-            bg-zinc-800 text-zinc-400 font-mono text-sm
-            transition-all duration-300 hover:bg-zinc-700
-            flex-shrink-0
-        `;
-        btn.dataset.decade = decade;
+        const div = document.createElement('div');
+        div.innerText = decade;
+        div.className = 'dial-item cursor-pointer py-2';
+        div.dataset.decade = decade;
         
-        btn.onclick = () => {
+        div.onclick = () => {
             selectDecade(decade);
+            // Scroll to center logic could be added here
+            div.scrollIntoView({ behavior: 'smooth', inline: 'center' });
         };
-        
-        dialContainer.appendChild(btn);
+        dialContainer.appendChild(div);
     });
 
-    // Select default
+    // Default Selection
     selectDecade('2020');
 
-    // Shutter Listener
-    shutterBtn.addEventListener('click', () => {
-        toggleRecording();
+    // Button Listeners
+    shutterBtn.addEventListener('click', toggleRecording);
+    
+    flipBtn.addEventListener('click', async () => {
+        // Visual feedback
+        flipBtn.classList.add('rotate-180');
+        setTimeout(() => flipBtn.classList.remove('rotate-180'), 500);
+        
+        await toggleCamera(videoElement);
     });
+
+    // Scroll Listener for Dial (Snap effect)
+    dialContainer.addEventListener('scroll', () => {
+        // Optional: Detect center element logic for advanced interaction
+    }, { passive: true });
 }
 
 function selectDecade(decade) {
-    // Update visual state
-    document.querySelectorAll('.dial-btn').forEach(b => {
+    document.querySelectorAll('.dial-item').forEach(b => {
         if(b.dataset.decade === decade) {
-            b.classList.remove('bg-zinc-800', 'text-zinc-400', 'border-zinc-700');
-            b.classList.add('bg-yellow-500', 'text-black', 'border-yellow-400', 'scale-110', 'font-bold');
+            b.classList.add('active');
         } else {
-            b.classList.add('bg-zinc-800', 'text-zinc-400', 'border-zinc-700');
-            b.classList.remove('bg-yellow-500', 'text-black', 'border-yellow-400', 'scale-110', 'font-bold');
+            b.classList.remove('active');
         }
     });
-
-    // Notify Manager
     setEra(decade);
 }

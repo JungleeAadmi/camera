@@ -1,36 +1,54 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap');
 
-/* Hide Scrollbar for Chrome/Safari/Opera */
-.no-scrollbar::-webkit-scrollbar {
-    display: none;
-}
-/* Hide Scrollbar for IE, Edge and Firefox */
-.no-scrollbar {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+/* Safe Area for iPhone Home Bar */
+.pb-safe-area {
+    padding-bottom: env(safe-area-inset-bottom, 20px);
 }
 
-/* Gradient Mask for Dial */
+/* Hide Scrollbar */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Dial Gradient Mask */
 .mask-gradient {
-    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
 }
 
-/* Scanline Animation (Used in 1980s) */
-@keyframes scanline {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(100vh); }
+/* Typography */
+body { font-family: 'Inter', sans-serif; }
+.font-mono { font-family: 'JetBrains Mono', monospace; }
+
+/* Shutter Animation */
+@keyframes recordPulse {
+    0% { transform: scale(0.95); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(0.95); }
+}
+.recording-active #shutter-inner {
+    border-radius: 4px;
+    background-color: #ef4444;
+    transform: scale(0.5);
+}
+.recording-active #shutter-btn {
+    border-color: #ef4444;
 }
 
-.scanline-effect {
-    background: linear-gradient(
-        to bottom,
-        rgba(255,255,255,0),
-        rgba(255,255,255,0) 50%,
-        rgba(0,0,0,0.1) 50%,
-        rgba(0,0,0,0.1)
-    );
-    background-size: 100% 4px;
-    height: 200%;
-    animation: scanline 10s linear infinite;
+/* Dial Button Styling */
+.dial-item {
+    scroll-snap-align: center;
+    transition: all 0.2s ease-out;
+    opacity: 0.4;
+    transform: scale(0.8);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: white;
+    white-space: nowrap;
+}
+.dial-item.active {
+    opacity: 1;
+    transform: scale(1.1);
+    color: #EAB308; /* Yellow-500 */
+    text-shadow: 0 0 15px rgba(234, 179, 8, 0.6);
+    font-weight: 800;
 }
