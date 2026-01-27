@@ -1,0 +1,12 @@
+{
+  "name": "just-camera",
+  "version": "1.0.0",
+  "description": "Just Camera - Retro Cinema Web App",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Just Camera</title>
+    
+    <!-- Icons & Manifest -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    
+    <!-- Theme Colors -->
+    <meta name="theme-color" content="#18181b">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Tailwind & Custom Styles -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-zinc-900 text-white h-screen w-screen overflow-hidden flex flex-col items-center select-none">
+
+    <!-- Top Status Bar -->
+    <div class="w-full h-12 flex justify-between items-center px-6 z-20 bg-zinc-900/50 backdrop-blur-md absolute top-0">
+        <div class="text-xs font-mono text-zinc-500 tracking-widest">
+            JUST <span class="text-yellow-500">CAMERA</span>
+        </div>
+        <div id="recording-status" class="hidden flex items-center gap-2">
+            <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+            <span class="text-red-500 font-bold text-xs font-mono">REC</span>
+        </div>
+    </div>
+
+    <!-- Main Viewfinder Area -->
+    <div id="viewfinder-wrapper" class="relative w-full max-w-md h-full flex flex-col justify-center">
+        <!-- The Canvas (Where the magic happens) -->
+        <canvas id="cinema-canvas" class="w-full aspect-[9/16] bg-black shadow-2xl"></canvas>
+        
+        <!-- CSS Overlays -->
+        <div id="overlay-layer" class="absolute inset-0 pointer-events-none mix-blend-overlay"></div>
+    </div>
+
+    <!-- Bottom Controls -->
+    <div class="absolute bottom-0 w-full max-w-md p-6 pb-8 flex flex-col gap-6 z-30 bg-gradient-to-t from-zinc-900 via-zinc-900/90 to-transparent">
+        
+        <!-- The Gen Dial (Decade Selector) -->
+        <div class="w-full overflow-x-auto no-scrollbar mask-gradient">
+            <div class="flex gap-4 px-4 py-2" id="dial-container">
+                <!-- Dynamically populated by ui.js -->
+            </div>
+        </div>
+
+        <!-- Shutter Button -->
+        <div class="flex justify-center items-center">
+            <button id="shutter-btn" class="group relative w-20 h-20 rounded-full bg-zinc-200 border-4 border-zinc-400 shadow-xl active:scale-95 transition-all">
+                <div id="shutter-inner" class="absolute inset-2 bg-zinc-900 rounded-full transition-colors group-hover:bg-zinc-800"></div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Hidden Video Source (Raw Camera Feed) -->
+    <video id="raw-video" class="hidden" autoplay playsinline muted></video>
+
+    <!-- Scripts -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
