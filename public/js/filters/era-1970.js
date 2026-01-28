@@ -1,15 +1,15 @@
 import { applyGateWeave, applyGrain } from './shared-effects.js';
 
-export function apply(ctx, video, width, height) {
-    // 1. Color: Faded + Green Tint
-    ctx.filter = 'contrast(90%) brightness(105%) sepia(20%)';
-    applyGateWeave(ctx, video, width, height, 0.4);
+export function apply(ctx, video, width, height, time) {
+    // 1. Base: Faded
+    ctx.filter = 'contrast(90%) brightness(110%) sepia(20%)';
+    applyGateWeave(ctx, video, width, height, time, 0.5);
     ctx.filter = 'none';
 
-    // 2. Optical: Green Shadows (Lighten trick)
-    ctx.globalCompositeOperation = 'lighten';
-    ctx.fillStyle = 'rgba(10, 30, 40, 0.2)'; // Dark Cyan/Green
+    // 2. Color Bias: Greenish Shadows (Exclusion trick)
+    ctx.globalCompositeOperation = 'exclusion';
+    ctx.fillStyle = 'rgba(20, 50, 100, 0.15)';
     ctx.fillRect(0,0,width,height);
     
-    applyGrain(ctx, width, height, 0.15);
+    applyGrain(ctx, width, height, time, 0.15);
 }

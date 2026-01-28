@@ -16,10 +16,8 @@ export function initUI() {
         div.innerText = decade;
         div.className = 'dial-item cursor-pointer py-2';
         div.dataset.decade = decade;
-        
         div.onclick = () => {
             selectDecade(decade);
-            // Scroll to center logic could be added here
             div.scrollIntoView({ behavior: 'smooth', inline: 'center' });
         };
         dialContainer.appendChild(div);
@@ -32,17 +30,10 @@ export function initUI() {
     shutterBtn.addEventListener('click', toggleRecording);
     
     flipBtn.addEventListener('click', async () => {
-        // Visual feedback
         flipBtn.classList.add('rotate-180');
         setTimeout(() => flipBtn.classList.remove('rotate-180'), 500);
-        
         await toggleCamera(videoElement);
     });
-
-    // Scroll Listener for Dial (Snap effect)
-    dialContainer.addEventListener('scroll', () => {
-        // Optional: Detect center element logic for advanced interaction
-    }, { passive: true });
 }
 
 function selectDecade(decade) {

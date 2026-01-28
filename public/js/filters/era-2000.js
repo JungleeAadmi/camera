@@ -1,15 +1,14 @@
-export function apply(ctx, video, width, height) {
-    // 1. Color: Cool Tint
+export function apply(ctx, video, width, height, time) {
     ctx.drawImage(video, 0, 0, width, height);
-    
-    // 2. Optical: "Webcam" Glow
+
+    // 1. Webcam Glow
     ctx.globalCompositeOperation = 'screen';
-    ctx.filter = 'blur(6px) opacity(40%)';
+    ctx.filter = 'blur(8px) opacity(40%)';
     ctx.drawImage(video, 0, 0, width, height);
     ctx.filter = 'none';
 
-    // 3. Tint: Blue
+    // 2. Cool Tint
     ctx.globalCompositeOperation = 'overlay';
-    ctx.fillStyle = 'rgba(0, 50, 200, 0.1)';
+    ctx.fillStyle = 'rgba(0, 80, 200, 0.15)';
     ctx.fillRect(0, 0, width, height);
 }

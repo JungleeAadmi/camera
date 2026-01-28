@@ -1,17 +1,15 @@
-import { applyGateWeave, applyGrain, applyVignette } from './shared-effects.js';
+import { applyGateWeave, applyGrain, applyVignette, applyColorBias } from './shared-effects.js';
 
-export function apply(ctx, video, width, height) {
-    // 1. Color: Warm Ektachrome look
-    ctx.filter = 'sepia(30%) saturate(130%) hue-rotate(-10deg)';
-    applyGateWeave(ctx, video, width, height, 0.8);
+export function apply(ctx, video, width, height, time) {
+    // 1. Base: Warm Tint + Softness
+    ctx.filter = 'sepia(30%) saturate(120%) blur(0.5px)';
+    applyGateWeave(ctx, video, width, height, time, 1.0); // Handheld feel
     ctx.filter = 'none';
 
-    // 2. Optical: Soft Focus (Blur)
-    ctx.globalCompositeOperation = 'overlay';
-    ctx.fillStyle = 'rgba(255, 200, 100, 0.1)'; // Yellow tint
-    ctx.fillRect(0,0,width,height);
+    // 2. Color Bias: Warm Yellow
+    applyColorBias(ctx, width, height, 'rgba(255, 220, 150, 0.15)', 'multiply');
 
-    // 3. Texture: Large Grain
-    applyGrain(ctx, width, height, 0.2);
+    // 3. Texture: Heavy Color Grain
+    applyGrain(ctx, width, height, time, 0.3);
     applyVignette(ctx, width, height, 0.4);
 }

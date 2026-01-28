@@ -1,14 +1,11 @@
 import { applyGateWeave, applyVignette } from './shared-effects.js';
 
-export function apply(ctx, video, width, height) {
-    // 1. Color: Sepia + Soft Contrast
-    ctx.filter = 'sepia(80%) grayscale(20%) contrast(115%)';
-    
-    // 2. Motion: Mild Jitter
-    applyGateWeave(ctx, video, width, height, 0.5);
-    
+export function apply(ctx, video, width, height, time) {
+    // 1. Base: Soft Sepia
+    ctx.filter = 'sepia(60%) grayscale(40%) contrast(120%)';
+    applyGateWeave(ctx, video, width, height, time, 0.8);
     ctx.filter = 'none';
 
-    // 3. Optical: Vignette
-    applyVignette(ctx, width, height, 0.7);
+    // 2. Optical: Heavy Vignette
+    applyVignette(ctx, width, height, 0.8);
 }

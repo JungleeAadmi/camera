@@ -1,23 +1,27 @@
-// --- SHARED PRIMITIVES FOR INSTAX CINEMA ---
+// --- OPTICAL SIMULATION PRIMITIVES ---
 
 // 1. GATE WEAVE (Frame Jitter)
 // Simulates the film strip shaking in the gate
-export function applyGateWeave(ctx, video, width, height, intensity = 1.0) {
-    const maxShift = width * 0.004 * intensity; // 0.4% shift
-    const x = (Math.random() - 0.5) * maxShift;
-    const y = (Math.random() - 0.5) * maxShift;
+// "Jitter must move subtly over time, not flicker randomly" -> We use Math.sin with time
+export function applyGateWeave(ctx, video, width, height, time, intensity = 1.0) {
+    // Instax Spec: "Sub-pixel X/Y shift per frame"
+    // We use a sine wave based on time to create "weave" rather than random jitter
+    const xShift = Math.sin(time * 0.012) * (width * 0.002 * intensity); 
+    const yShift = Math.cos(time * 0.009) * (height * 0.002 * intensity);
     
-    // Draw video slightly offset
-    // Scale up slightly to hide black edges from shaking
-    const scale = 1.01 + (0.005 * intensity);
+    // Scale up slightly to avoid black edges
+    const scale = 1.02; 
     const sw = width * scale;
     const sh = height * scale;
     
-    ctx.drawImage(video, -(sw-width)/2 + x, -(sh-height)/2 + y, sw, sh);
+    ctx.drawImage(video, 
+        -(sw - width)/2 + xShift, 
+        -(sh - height)/2 + yShift, 
+        sw, sh
+    );
 }
 
-// 2. FILM GRAIN (Luma Noise)
-// Uses a pre-rendered pattern for performance (No CPU looping!)
+// 2. FILM GRAIN (Luma-based Texture)
 let grainPattern = null;
 function getGrain(ctx) {
     if (grainPattern) return grainPattern;
@@ -26,41 +30,52 @@ function getGrain(ctx) {
     c.width = s; c.height = s;
     const cx = c.getContext('2d');
     
-    // Create harsh noise
-    for(let i=0; i < (s*s)/2; i++) {
-        cx.fillStyle = Math.random() > 0.5 ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.15)';
+    // "Coarse, color-biased" noise
+    for(let i=0; i < (s*s)/1.5; i++) {
+        const v = Math.random();
+        cx.fillStyle = v > 0.5 ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.12)';
         cx.fillRect(Math.random()*s, Math.random()*s, 2, 2);
     }
     grainPattern = ctx.createPattern(c, 'repeat');
     return grainPattern;
 }
 
-export function applyGrain(ctx, width, height, alpha = 0.2) {
+export function applyGrain(ctx, width, height, time, strength = 0.2) {
     ctx.globalCompositeOperation = 'overlay';
-    ctx.globalAlpha = alpha;
+    ctx.globalAlpha = strength;
     ctx.fillStyle = getGrain(ctx);
-    // Jitter grain position so it looks alive
+    
+    // "Grain moves slowly over time"
+    const offset = (time * 0.05) % 256;
     ctx.save();
-    ctx.translate(Math.random()*100, Math.random()*100);
-    ctx.fillRect(-100, -100, width+200, height+200);
+    ctx.translate(offset, Math.random() * 20); // Horizontal scroll + slight vertical jitter
+    ctx.fillRect(-offset, -20, width + 256, height + 40);
     ctx.restore();
+    
     ctx.globalAlpha = 1.0;
     ctx.globalCompositeOperation = 'source-over';
 }
 
-// 3. FLICKER (Light Breathing)
-export function applyFlicker(ctx, width, height, intensity = 0.05) {
-    const flicker = 1 - (Math.random() * intensity);
-    ctx.globalCompositeOperation = 'multiply';
-    ctx.fillStyle = `rgb(${255*flicker}, ${255*flicker}, ${255*flicker})`;
+// 3. FLICKER (Exposure Breathing)
+export function applyFlicker(ctx, width, height, time, strength = 0.05) {
+    // "Random brightness modulation per frame"
+    // Using sine + random to simulate "breathing"
+    const flicker = Math.abs(Math.sin(time * 0.008)) * strength + (Math.random() * strength * 0.5);
+    
+    ctx.globalCompositeOperation = 'multiply'; // Darken only
+    // 1.0 = no change, 0.0 = black. 
+    // We want slight darkening, so brightness should be 1.0 - flicker
+    const brightness = 1.0 - flicker;
+    
+    ctx.fillStyle = `rgb(${255*brightness}, ${255*brightness}, ${255*brightness})`;
     ctx.fillRect(0,0,width,height);
     ctx.globalCompositeOperation = 'source-over';
 }
 
-// 4. VIGNETTE (Lens Darkening)
-export function applyVignette(ctx, width, height, strength = 0.6) {
+// 4. VIGNETTE & HALATION
+export function applyVignette(ctx, width, height, strength = 0.5) {
     ctx.globalCompositeOperation = 'multiply';
-    const grad = ctx.createRadialGradient(width/2, height/2, height*0.3, width/2, height/2, height*0.9);
+    const grad = ctx.createRadialGradient(width/2, height/2, height*0.35, width/2, height/2, height*0.95);
     grad.addColorStop(0, 'rgba(0,0,0,0)');
     grad.addColorStop(1, `rgba(0,0,0,${strength})`);
     ctx.fillStyle = grad;
@@ -68,21 +83,10 @@ export function applyVignette(ctx, width, height, strength = 0.6) {
     ctx.globalCompositeOperation = 'source-over';
 }
 
-// 5. DATE STAMP
-export function applyDateStamp(ctx, width, height, color='#FF6600', font='Courier New') {
-    const date = new Date();
-    const str = date.toLocaleDateString('en-US', { 
-        month: 'short', day: '2-digit', year: 'numeric' 
-    }).toUpperCase();
-    
-    const fontSize = Math.floor(width * 0.05); 
-    ctx.font = `bold ${fontSize}px "${font}", monospace`;
-    ctx.textBaseline = 'bottom';
-    const x = width * 0.05;
-    const y = height - (height * 0.05);
-
-    ctx.fillStyle = 'black'; // Shadow
-    ctx.fillText(str, x+2, y+2);
+// 5. COLOR BIAS HELPER
+export function applyColorBias(ctx, width, height, color, mode = 'overlay') {
+    ctx.globalCompositeOperation = mode;
     ctx.fillStyle = color;
-    ctx.fillText(str, x, y);
+    ctx.fillRect(0,0,width,height);
+    ctx.globalCompositeOperation = 'source-over';
 }

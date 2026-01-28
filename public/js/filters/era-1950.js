@@ -1,15 +1,14 @@
 import { applyGateWeave } from './shared-effects.js';
 
-export function apply(ctx, video, width, height) {
-    // 1. Color: Technicolor (High Saturation)
+export function apply(ctx, video, width, height, time) {
+    // 1. Base: Hyper Saturation
     ctx.filter = 'saturate(160%) contrast(110%)';
-    applyGateWeave(ctx, video, width, height, 0.2); // Very stable
+    applyGateWeave(ctx, video, width, height, time, 0.3); // Very stable
     ctx.filter = 'none';
 
-    // 2. Optical: Halation / Bloom
-    // Draw a blurred copy on top in 'soft-light' mode
+    // 2. Optical: Bloom (Halation)
     ctx.globalCompositeOperation = 'soft-light';
-    ctx.filter = 'blur(10px) opacity(60%)';
+    ctx.filter = 'blur(15px) opacity(50%)';
     ctx.drawImage(video, 0, 0, width, height);
     ctx.filter = 'none';
 }
