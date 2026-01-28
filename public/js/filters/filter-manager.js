@@ -19,11 +19,12 @@ const FILTERS = {
 let currentEra = '2020';
 
 export const FilterManager = {
-    applyCurrentFilter: (ctx, width, height, time) => {
+    // Note: Now accepts 'video' element directly to allow Jitter/Weave
+    applyCurrentFilter: (ctx, video, width, height, time) => {
         const filter = FILTERS[currentEra];
         if (filter) {
             ctx.save();
-            filter.apply(ctx, width, height, time);
+            filter.apply(ctx, video, width, height, time);
             ctx.restore();
         }
     }

@@ -1,14 +1,15 @@
-// 1950: Technicolor
-// Saturated Reds/Cyans
+import { applyGateWeave } from './shared-effects.js';
 
-export function apply(ctx, width, height) {
-    // 1. Hyper Saturation
-    ctx.filter = 'saturate(180%) contrast(110%)';
-    ctx.drawImage(ctx.canvas, 0, 0);
+export function apply(ctx, video, width, height) {
+    // 1. Color: Technicolor (High Saturation)
+    ctx.filter = 'saturate(160%) contrast(110%)';
+    applyGateWeave(ctx, video, width, height, 0.2); // Very stable
     ctx.filter = 'none';
 
-    // 2. Warm Highlight Bloom
+    // 2. Optical: Halation / Bloom
+    // Draw a blurred copy on top in 'soft-light' mode
     ctx.globalCompositeOperation = 'soft-light';
-    ctx.fillStyle = 'rgba(255, 200, 150, 0.3)';
-    ctx.fillRect(0, 0, width, height);
+    ctx.filter = 'blur(10px) opacity(60%)';
+    ctx.drawImage(video, 0, 0, width, height);
+    ctx.filter = 'none';
 }

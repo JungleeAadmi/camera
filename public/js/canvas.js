@@ -3,19 +3,16 @@ import { FilterManager } from './filters/filter-manager.js';
 let ctx;
 let canvas;
 let videoSource;
-let animationId;
 let lastFrameTime = 0;
-const FPS_LIMIT = 30; // Limit rendering to 30fps to fix heating
-const FRAME_INTERVAL = 1000 / FPS_LIMIT;
+const FPS_LIMIT = 24; // Cinema Standard (24fps) - Also reduces heat!
 
 export function initCanvas(canvasEl, videoEl) {
     canvas = canvasEl;
     videoSource = videoEl;
-    // 'alpha: false' improves performance
+    // 'willReadFrequently: false' is CRITICAL for GPU performance
     ctx = canvas.getContext('2d', { willReadFrequently: false, alpha: false }); 
 
     const updateSize = () => {
-        // Match internal resolution to video, but CSS handles display size
         canvas.width = videoSource.videoWidth || 1080;
         canvas.height = videoSource.videoHeight || 1920;
     };
@@ -25,20 +22,17 @@ export function initCanvas(canvasEl, videoEl) {
 
 export function startRenderLoop() {
     function render(time) {
-        animationId = requestAnimationFrame(render);
+        requestAnimationFrame(render);
 
-        // Throttle FPS to reduce heat
         const delta = time - lastFrameTime;
-        if (delta < FRAME_INTERVAL) return;
-        lastFrameTime = time - (delta % FRAME_INTERVAL);
+        if (delta < (1000 / FPS_LIMIT)) return;
+        lastFrameTime = time - (delta % (1000 / FPS_LIMIT));
 
-        if (!videoSource || !ctx) return;
+        if (!videoSource || !ctx || videoSource.readyState < 2) return;
 
-        // 1. Draw raw frame
-        ctx.drawImage(videoSource, 0, 0, canvas.width, canvas.height);
-
-        // 2. Apply active filter (Optimized)
-        FilterManager.applyCurrentFilter(ctx, canvas.width, canvas.height, time);
+        // Clear? No, some filters rely on "trails" (Motion Blur)
+        // We let the FilterManager handle the drawing entirely.
+        FilterManager.applyCurrentFilter(ctx, videoSource, canvas.width, canvas.height, time);
     }
     render(0);
 }

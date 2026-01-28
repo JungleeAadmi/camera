@@ -1,5 +1,4 @@
-// 2020: Clean HD
-// No effects, just pure camera
-export function apply(ctx, width, height) {
-    // Pass through
+export function apply(ctx, video, width, height) {
+    // Pure pass-through
+    ctx.drawImage(video, 0, 0, width, height);
 }

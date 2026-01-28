@@ -1,17 +1,18 @@
-// 2010: Instagram X-Pro
-// High Contrast, Vignette, Teal/Orange
+import { applyVignette } from './shared-effects.js';
 
-export function apply(ctx, width, height) {
-    // 1. Cross Process
-    ctx.filter = 'contrast(130%) saturate(140%) sepia(20%)';
-    ctx.drawImage(ctx.canvas, 0, 0);
+export function apply(ctx, video, width, height) {
+    // 1. Color: X-Pro (Cross Process)
+    ctx.filter = 'contrast(120%) saturate(140%) sepia(20%)';
+    ctx.drawImage(video, 0, 0, width, height);
     ctx.filter = 'none';
 
-    // 2. Vignette
-    ctx.globalCompositeOperation = 'multiply';
-    const grad = ctx.createRadialGradient(width/2, height/2, height*0.2, width/2, height/2, height);
-    grad.addColorStop(0, 'rgba(0,0,0,0)');
-    grad.addColorStop(1, 'rgba(20,0,40,0.6)'); // Dark blueish vignette
+    // 2. Optical: Teal/Orange Gradient
+    ctx.globalCompositeOperation = 'overlay';
+    const grad = ctx.createLinearGradient(0,0,width,height);
+    grad.addColorStop(0, 'rgba(255, 100, 0, 0.2)'); // Orange
+    grad.addColorStop(1, 'rgba(0, 100, 255, 0.2)'); // Teal
     ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, width, height);
+    ctx.fillRect(0,0,width,height);
+
+    applyVignette(ctx, width, height, 0.5);
 }
